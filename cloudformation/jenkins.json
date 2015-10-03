@@ -1,0 +1,135 @@
+{
+    "AWSTemplateFormatVersion": "2010-09-09",
+    "Description": "codestardemo - jenkins",
+
+    "Parameters" : {
+        "InstanceRole": {
+            "Type": "String",
+            "Description": "IAM Role for cfn-init"
+        },
+        "S3Bucket": {
+            "Type": "String",
+            "Description": "Artifact Bucket"
+        },
+        "JobConfigsTarball": {
+            "Type": "String",
+            "Description": "Path to config tarball in S3Bucket"
+        },
+        "KeyName": {
+            "Type": "String",
+            "Description": "Ec2 key for ssh access"
+        },
+        "IamInstanceProfile": {
+            "Type": "String",
+            "Description": "Instance profile for jenkins instance"
+        },
+        "InstanceSecurityGroup": {
+            "Type": "String",
+            "Description": "Instance SG for jenkins instance"
+        },
+        "SubnetId": {
+            "Type": "String",
+            "Description": "VPC subnet id in which to place jenkins"
+        }
+    },
+
+    "Resources": {
+
+        "JenkinsInstance": {
+            "Type": "AWS::EC2::Instance",
+            "Metadata" : {
+                "AWS::CloudFormation::Authentication" : {
+                    "S3AccessCreds" : {
+                        "type" : "S3",
+                        "roleName" : { "Ref" : "InstanceRole" },
+                        "buckets" : [{ "Ref" : "S3Bucket" }]
+                    }
+                },
+                "AWS::CloudFormation::Init": {
+                    "config": {
+                        "files": {
+                            "/tmp/jobconfigs.tgz": {
+                                "source": { "Fn::Join": [ "", [ "https://s3.amazonaws.com/", { "Ref" : "S3Bucket" }, "/", { "Ref" : "JobConfigsTarball" } ]]},
+                                "authentication": "S3AccessCreds",
+                                "mode": "000644",
+                                "owner": "root",
+                                "group": "root"
+                            },
+                            "/tmp/apache-maven-3.3.3-bin.tar.gz": {
+                                "source": "http://www.us.apache.org/dist/maven/maven-3/3.3.3/binaries/apache-maven-3.3.3-bin.tar.gz",
+                                "mode": "000644",
+                                "owner": "root",
+                                "group": "root"
+                            }
+                        },
+                        "commands": {
+                            "00-extract-configs": {
+                                "command": { "Fn::Join" : [ "", [
+                                    "cd /var/lib/jenkins/jobs/\n",
+                                    "tar xzf /tmp/jobconfigs.tgz\n",
+                                    "chown -R jenkins:jenkins .\n"
+                                ]]}
+                            },
+                            "10-install-maven": {
+                                "command": { "Fn::Join" : [ "", [
+                                    "cd /opt\n",
+                                    "tar xvf /tmp/apache-maven-3.3.3-bin.tar.gz\n"
+                                ]]}
+                            }
+                        }
+                    }
+                }
+            },
+
+            "Properties": {
+                "ImageId": "ami-15256270",
+                "InstanceType": "t2.large",
+                "KeyName": { "Ref": "KeyName" },
+                "IamInstanceProfile": { "Ref": "IamInstanceProfile" },
+                "NetworkInterfaces": [{
+                    "GroupSet": [{ "Ref": "InstanceSecurityGroup" }],
+                    "AssociatePublicIpAddress": "true",
+                    "DeviceIndex": "0",
+                    "DeleteOnTermination": "true",
+                    "SubnetId": { "Ref": "SubnetId" }
+                }],
+                "UserData": { "Fn::Base64": { "Fn::Join": [ "", [
+                    "#!/bin/bash -xe\n",
+                    "yum update -y aws-cfn-bootstrap\n",
+                    "yum -y upgrade\n",
+                    "\n",
+                    "service jenkins stop\n",
+                    "/opt/aws/bin/cfn-init -v",
+                      " --stack ", { "Ref": "AWS::StackName" },
+                      " --resource JenkinsInstance ",
+                      " --role ", { "Ref": "InstanceRole" },
+                      " --region ", { "Ref": "AWS::Region" }, "\n",
+                    "service jenkins start\n",
+                    "\n",
+                    "/opt/apache-maven-3.3.3/bin/mvn --version \n",
+                    "\n",
+                    "/opt/aws/bin/cfn-signal -e $? ",
+                        " --stack ", { "Ref": "AWS::StackName" },
+                        " --resource JenkinsInstance ",
+                        " --region ", { "Ref": "AWS::Region" }, "\n"
+                ]]}},
+                "Tags": [{ "Key": "Application", "Value": { "Ref": "AWS::StackId" } },
+                         { "Key": "Name", "Value": { "Ref": "AWS::StackName" } }]
+            },
+            "CreationPolicy": {
+                "ResourceSignal": { "Timeout": "PT10M" }
+            }
+        }
+    },
+
+    "Outputs": {
+        "PublicIp": {
+            "Description": "Public IP of Jenkins instance",
+            "Value": { "Fn::GetAtt": [ "JenkinsInstance", "PublicIp" ]}
+        },
+        "PublicDnsName": {
+            "Description": "Public DNS of Jenkins instance",
+            "Value": { "Fn::GetAtt": [ "JenkinsInstance", "PublicDnsName" ]}
+        }
+    }
+}

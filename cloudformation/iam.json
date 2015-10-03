@@ -1,0 +1,179 @@
+{
+    "AWSTemplateFormatVersion": "2010-09-09",
+    "Description": "codestardemo - iam roles & policies and instance-profiles",
+
+    "Resources": {
+
+        "InstanceRole": {
+            "Type": "AWS::IAM::Role",
+            "Properties": {
+                "AssumeRolePolicyDocument": {
+                    "Statement": [{
+                        "Effect": "Allow",
+                        "Principal": { "Service": [ "ec2.amazonaws.com" ]},
+                        "Action": [ "sts:AssumeRole" ]
+                    }]
+                },
+                "Path": "/",
+                "Policies": [{
+                    "PolicyName": "AllowAll",
+                    "PolicyDocument": {
+                        "Statement": [{
+                            "Effect": "Allow",
+                            "Action": "*",
+                            "Resource": "*"
+                        }]
+                    }
+                }]
+            }
+        },
+
+        "InstanceProfile": {
+            "Type": "AWS::IAM::InstanceProfile",
+            "Properties": {
+                "Path": "/",
+                "Roles": [{ "Ref": "InstanceRole" }]
+            }
+        },
+
+        "CodeDeployTrustRole": {
+            "Type": "AWS::IAM::Role",
+            "Properties": {
+                "AssumeRolePolicyDocument": {
+                    "Statement": [{
+                        "Sid": "1",
+                        "Effect": "Allow",
+                        "Principal": {
+                            "Service": [
+                                "codedeploy.us-east-1.amazonaws.com", 
+                                "codedeploy.us-west-2.amazonaws.com",
+                                "codedeploy.eu-west-1.amazonaws.com",
+                                "codedeploy.ap-southeast-2.amazonaws.com",
+                                "codedeploy.ap-northeast-1.amazonaws.com"
+                            ]
+                        },
+                        "Action": "sts:AssumeRole"
+                    }]
+                },
+                "Path": "/",
+                "Policies": [{
+                    "PolicyName": "CodeDeployPolicy",
+                    "PolicyDocument": {
+                        "Statement": [{
+                            "Effect": "Allow",
+                            "Action": [
+                                "autoscaling:CompleteLifecycleAction",
+                                "autoscaling:DeleteLifecycleHook",
+                                "autoscaling:DescribeAutoScalingGroups",
+                                "autoscaling:DescribeLifecycleHooks",
+                                "autoscaling:PutLifecycleHook",
+                                "autoscaling:RecordLifecycleActionHeartbeat",
+                                "ec2:DescribeInstances",
+                                "ec2:DescribeInstanceStatus",
+                                "tag:GetTags",
+                                "tag:GetResources"
+                            ],
+                            "Resource": "*"
+                        }
+                      ]
+                    }
+                }]
+            }
+        },
+
+        "CodePipelineTrustRole": {
+            "Type": "AWS::IAM::Role",
+            "Properties": {
+                "AssumeRolePolicyDocument": {
+                    "Statement": [{
+                        "Sid": "1",
+                        "Effect": "Allow",
+                        "Principal": {
+                            "Service": [ 
+                                "codepipeline.amazonaws.com"
+                            ]
+                        },
+                        "Action": "sts:AssumeRole"
+                    }]
+                },
+                "Path": "/",
+                "Policies": [{
+                    "PolicyName": "CodePipelinePolicy",
+                    "PolicyDocument": {
+                        "Version": "2012-10-17",
+                        "Statement": [{
+                            "Action": [
+                                "s3:GetObject",
+                                "s3:GetObjectVersion",
+                                "s3:GetBucketVersioning"
+                            ],
+                            "Resource": "*",
+                            "Effect": "Allow"
+                        },{
+                            "Action": [ "s3:PutObject" ],
+                            "Resource": [
+                                "arn:aws:s3:::appfuse-*",
+                                "arn:aws:s3:::codepipeline*",
+                                "arn:aws:s3:::elasticbeanstalk*"
+                            ],
+                            "Effect": "Allow"
+                        },{
+                            "Action": [
+                                "codedeploy:CreateDeployment",
+                                "codedeploy:GetApplicationRevision",
+                                "codedeploy:GetDeployment",
+                                "codedeploy:GetDeploymentConfig",
+                                "codedeploy:RegisterApplicationRevision"
+                            ],
+                            "Resource": "*",
+                            "Effect": "Allow"
+                        },{
+                            "Action": [
+                                "elasticbeanstalk:*",
+                                "ec2:*",
+                                "elasticloadbalancing:*",
+                                "autoscaling:*",
+                                "cloudwatch:*",
+                                "s3:*",
+                                "sns:*",
+                                "cloudformation:*",
+                                "rds:*",
+                                "sqs:*",
+                                "ecs:*",
+                                "iam:PassRole"
+                            ],
+                            "Resource": "*",
+                            "Effect": "Allow"
+                        },{
+                            "Action": [
+                                "lambda:InvokeFunction",
+                                "lambda:ListFunctions"
+                            ],
+                            "Resource": "*",
+                            "Effect": "Allow"
+                        }]
+                    }
+                }]
+            }
+        }
+    },
+
+    "Outputs": {
+        "CodeDeployServiceRoleARN": {
+            "Description": "The ARN of the Code Deploy Trust Role, which is needed to configure Code Deploy",
+            "Value": { "Fn::GetAtt": [ "CodeDeployTrustRole", "Arn" ]}
+        },
+        "CodePipelineTrustRoleARN": {
+            "Description": "The ARN of the Code Pipeline Trust Role, which is needed to configure Code Pipeline",
+            "Value": { "Fn::GetAtt": [ "CodePipelineTrustRole", "Arn" ]}
+        },
+        "InstanceProfile": {
+            "Description": "Name of instance-profile for Jenkins and application instances",
+            "Value": { "Ref": "InstanceProfile" }
+        },
+        "InstanceRole": {
+            "Description": "IAM Role for Jenkins and application instance profile",
+            "Value": { "Ref": "InstanceRole" }
+        }
+    }
+}

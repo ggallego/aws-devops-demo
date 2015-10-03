@@ -1,0 +1,170 @@
+{
+    "AWSTemplateFormatVersion": "2010-09-09",
+    "Description": "codestardemo - autoscalinggroup betafleet",
+
+    "Parameters" : {
+        "IamInstanceProfile": {
+            "Type": "String",
+            "Description": "Instance profile for app instances"
+        },
+        "KeyName": {
+            "Type": "String",
+            "Description": "KeyPair name for ssh access to instance"
+        },
+        "SubnetId": {
+            "Type": "String",
+            "Description": "subnet to launch instances"
+        },
+        "InstanceSecurityGroup": {
+            "Type": "String",
+            "Description": "InstanceSecurityGroup to launch instances"
+        },
+        "ELBSecurityGroup": {
+            "Type": "String",
+            "Description": "ELBSecurityGroup to launch elb"
+        }
+    },
+
+    "Resources": {
+
+        "LaunchConfiguration": {
+            "Type": "AWS::AutoScaling::LaunchConfiguration",
+            "Properties": {
+                "ImageId": "ami-e3106686",
+                "InstanceType": "t2.small",
+                "KeyName": { "Ref": "KeyName" },
+                "IamInstanceProfile": { "Ref": "IamInstanceProfile" },
+                "SecurityGroups": [ { "Ref": "InstanceSecurityGroup" } ],
+                "AssociatePublicIpAddress": "true",
+                "UserData": { "Fn::Base64": { "Fn::Join": [ "", [
+                    "#!/bin/bash\n",
+                    "yum -y update\n",
+                    "yum install -y ruby\n",
+                    "yum install -y aws-cli\n",
+                    "cd /home/ec2-user\n",
+                    "aws s3 cp s3://aws-codedeploy-us-east-1/latest/install . --region us-east-1\n",
+                    "chmod +x ./install\n",
+                    "./install auto\n"
+                ]]}}
+            }
+        },
+
+        "BetaFleetLoadBalancer": {
+            "Type": "AWS::ElasticLoadBalancing::LoadBalancer",
+            "Properties": {
+                "Subnets": [ { "Ref": "SubnetId" } ],
+                "ConnectionDrainingPolicy": {
+                    "Enabled": "true",
+                    "Timeout": "300"
+                },
+                "ConnectionSettings": { "IdleTimeout": "60" },
+                "CrossZone": "false",
+                "HealthCheck": {
+                    "HealthyThreshold": "10",
+                    "Interval": "10",
+                    "Target": "TCP:8080",
+                    "Timeout": "5",
+                    "UnhealthyThreshold": "2"
+                },
+                "SecurityGroups": [ { "Ref": "ELBSecurityGroup" } ],
+                "Listeners": [ {
+                    "LoadBalancerPort": "80",
+                    "Protocol": "HTTP",
+                    "InstancePort": "8080",
+                    "InstanceProtocol": "HTTP"} ],
+                "Tags": [{ "Key": "Application", "Value": { "Ref": "AWS::StackId" } },
+                         { "Key": "Name", "Value": { "Ref": "AWS::StackName" } }]
+            }
+        },
+
+        "BetaFleetAutoScalingGroup": {
+            "Type": "AWS::AutoScaling::AutoScalingGroup",
+            "Properties": {
+                "VPCZoneIdentifier": [ { "Ref": "SubnetId" } ],
+                "Cooldown": "300",
+                "DesiredCapacity": "1",
+                "HealthCheckGracePeriod": "0",
+                "HealthCheckType": "EC2",
+                "MaxSize": "1",
+                "MinSize": "1",
+                "LaunchConfigurationName": { "Ref": "LaunchConfiguration" },
+                "LoadBalancerNames": [ { "Ref": "BetaFleetLoadBalancer" } ],
+                "Tags": [{ "Key": "Application", 
+                            "Value": { "Ref": "AWS::StackId" }, 
+                            "PropagateAtLaunch" : "true" },
+                         { "Key": "Name", 
+                           "Value": { "Fn::Join" : [ "-", [{ "Ref": "AWS::StackName" }, "beta"]] },
+                           "PropagateAtLaunch" : "true" }]
+            }
+        },
+
+        "ProdFleetLoadBalancer": {
+            "Type": "AWS::ElasticLoadBalancing::LoadBalancer",
+            "Properties": {
+                "Subnets": [ { "Ref": "SubnetId" } ],
+                "ConnectionDrainingPolicy": {
+                    "Enabled": "true",
+                    "Timeout": "300"
+                },
+                "ConnectionSettings": { "IdleTimeout": "60" },
+                "CrossZone": "false",
+                "HealthCheck": {
+                    "HealthyThreshold": "10",
+                    "Interval": "10",
+                    "Target": "TCP:8080",
+                    "Timeout": "5",
+                    "UnhealthyThreshold": "2"
+                },
+                "SecurityGroups": [ { "Ref": "ELBSecurityGroup" } ],
+                "Listeners": [ {
+                    "LoadBalancerPort": "80",
+                    "Protocol": "HTTP",
+                    "InstancePort": "8080",
+                    "InstanceProtocol": "HTTP"} ],
+                "Tags": [{ "Key": "Application", "Value": { "Ref": "AWS::StackId" } },
+                         { "Key": "Name", "Value": { "Ref": "AWS::StackName" } }]
+            }
+        },
+
+        "ProdFleetAutoScalingGroup": {
+            "Type": "AWS::AutoScaling::AutoScalingGroup",
+            "Properties": {
+                "VPCZoneIdentifier": [ { "Ref": "SubnetId" } ],
+                "Cooldown": "300",
+                "DesiredCapacity": "1",
+                "HealthCheckGracePeriod": "0",
+                "HealthCheckType": "EC2",
+                "MaxSize": "1",
+                "MinSize": "1",
+                "LaunchConfigurationName": { "Ref": "LaunchConfiguration" },
+                "LoadBalancerNames": [ { "Ref": "ProdFleetLoadBalancer" } ],
+                "Tags": [{ "Key": "Application", 
+                           "Value": { "Ref": "AWS::StackId" }, 
+                           "PropagateAtLaunch" : "true" },
+                         { "Key": "Name", 
+                           "Value": { "Fn::Join" : [ "-", [{ "Ref": "AWS::StackName" }, "prod"]] },
+                           "PropagateAtLaunch" : "true" }]
+            }
+        }
+    },
+
+    "Outputs": {
+        "BetaASGId": {
+            "Description": "BetaASGId",
+            "Value": { "Ref": "BetaFleetAutoScalingGroup"}
+        },
+        "BetaPublicDns": {
+            "Description": "Public DNS of the ELB",
+            "Value": { "Fn::GetAtt": [ "BetaFleetLoadBalancer", "DNSName" ]}
+        },
+        "ProdASGId": {
+            "Description": "ProdASGId",
+            "Value": { "Ref": "ProdFleetAutoScalingGroup"}
+        },
+        "ProdPublicDns": {
+            "Description": "Public DNS of the ELB",
+            "Value": { "Fn::GetAtt": [ "BetaFleetLoadBalancer", "DNSName" ]}
+        }
+
+    }
+}

@@ -1,0 +1,90 @@
+{
+    "AWSTemplateFormatVersion": "2010-09-09",
+    "Description": "codestardemo - autoscalinggroup betafleet",
+
+    "Parameters" : {
+        "DBName": {
+            "Type": "String",
+            "Description": "database name"
+        },
+        "RDSSecurityGroup": {
+            "Type": "String",
+            "Description": "RDSSecurityGroup to launch the database"
+        },
+        "DBSubnetGroupName": {
+            "Type": "String",
+            "Description": "DBSubnetGroupName to launch the database"
+        }
+    },
+
+    "Resources": {
+
+        "RDS": {
+            "Type": "AWS::RDS::DBInstance",
+            "Properties": {
+                "DBName": { "Ref" : "DBName" },
+                "DBInstanceIdentifier": { "Ref" : "DBName" },
+                "AllocatedStorage": "10",
+                "DBInstanceClass": "db.m3.medium",
+                "PubliclyAccessible": "true",
+                "StorageType": "gp2",
+                "BackupRetentionPeriod": "1",
+                "MasterUsername": "master",
+                "MasterUserPassword": "mymasterpasswd",
+                "Engine": "mysql",
+                "DBSubnetGroupName": { "Ref": "DBSubnetGroupName" },
+                "VPCSecurityGroups": [ { "Ref": "RDSSecurityGroup" } ],
+                "Tags": [{ "Key": "Application", "Value": { "Ref": "AWS::StackId" } },
+                         { "Key": "Name", "Value": { "Ref": "AWS::StackName" } }]
+            }
+        },
+
+        "RDSTest": {
+            "Type": "AWS::RDS::DBInstance",
+            "Properties": {
+                "DBName": { "Fn::Join" : [ "", [ { "Ref" : "DBName" }, "test" ]]},
+                "DBInstanceIdentifier": { "Fn::Join" : [ "", [ { "Ref" : "DBName" }, "test" ]]},
+                "AllocatedStorage": "10",
+                "DBInstanceClass": "db.m3.medium",
+                "PubliclyAccessible": "true",
+                "StorageType": "gp2",
+                "BackupRetentionPeriod": "1",
+                "MasterUsername": "master",
+                "MasterUserPassword": "mymasterpasswd",
+                "Engine": "mysql",
+                "DBSubnetGroupName": { "Ref": "DBSubnetGroupName" },
+                "VPCSecurityGroups": [ { "Ref": "RDSSecurityGroup" } ],
+                "Tags": [{ "Key": "Application", "Value": { "Ref": "AWS::StackId" } },
+                         { "Key": "Name", "Value": { "Ref": "AWS::StackName" } }]
+            }
+        }
+    },
+
+    "Outputs": {
+        "RDSDBName": {
+            "Description": "Beta/Prod RDS DBName",
+            "Value": { "Ref": "DBName" }
+        },
+        "RDSDBHost": {
+            "Description": "Public DNS of the RDS - Address",
+            "Value": { "Fn::GetAtt": [ "RDS", "Endpoint.Address" ]}
+        },
+        "RDSDBPort": {
+            "Description": "Public DNS of the RDS - Port",
+            "Value": { "Fn::GetAtt": [ "RDS", "Endpoint.Port" ]}
+        },
+        "RDSTestDBName": {
+            "Description": "Beta/Prod RDS DBName",
+            "Value": { "Fn::Join" : [ "", [ { "Ref" : "DBName" }, "test" ]]}
+        },
+        "RDSTestDBHost": {
+            "Description": "Public DNS of the RDSTest - Address",
+            "Value": { "Fn::GetAtt": [ "RDSTest", "Endpoint.Address" ]}
+        },
+        "RDSTestDBPort": {
+            "Description": "Public DNS of the RDSTest - Port",
+            "Value": { "Fn::GetAtt": [ "RDSTest", "Endpoint.Port" ]}
+        }
+
+    }
+}
