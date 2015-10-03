@@ -10,7 +10,7 @@ fi
 
 . $ENVIRONMENT_FILE
 
-echo "Creating $codestardemo_jenkinks_stackname."
+echo "Creating $codestardemo_jenkins_stackname."
 
 vpc="$(aws cloudformation describe-stacks --stack-name $codestardemo_vpc_stackname --output text --query 'Stacks[0].Outputs[?OutputKey==`VPC`].OutputValue')"
 subnet_id="$(aws cloudformation describe-stacks --stack-name $codestardemo_vpc_stackname --output text --query 'Stacks[0].Outputs[?OutputKey==`SubnetId`].OutputValue')"

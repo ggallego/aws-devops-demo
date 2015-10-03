@@ -16,6 +16,3 @@ aws codepipeline delete-pipeline --name $codestardemo_codepipeline
 
 aws codepipeline delete-custom-action-type \
     --action-version 1 --category Build --provider $codestardemo_jenkinsprovider_name
-
-aws codepipeline delete-custom-action-type \
-    --action-version 1 --category Test --provider $codestardemo_jenkinsprovider_name

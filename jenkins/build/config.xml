@@ -34,6 +34,9 @@
 
   <builders>
     <hudson.tasks.Shell>
+      <command>/opt/apache-maven-3.3.3/bin/mvn clean install -Ddb.name=RDSTEST_DBNAME_PLACEHOLDER -Ddb.host=RDSTEST_DBHOST_PLACEHOLDER -P itest</command>
+    </hudson.tasks.Shell>
+    <hudson.tasks.Shell>
       <command>/opt/apache-maven-3.3.3/bin/mvn clean install -DskipTests=true</command>
     </hudson.tasks.Shell>
     <hudson.tasks.Shell>
