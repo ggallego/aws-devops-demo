@@ -1,0 +1,51 @@
+{
+    "AWSTemplateFormatVersion": "2010-09-09",
+    "Description": "codestardemo - autoscalinggroup betafleet",
+
+    "Parameters" : {
+        "HostedZoneName": {
+            "Type": "String",
+            "Description": "HostedZoneName"
+        },
+        "BetaELBId": {
+            "Type": "String",
+            "Description": "RDSSecurityGroup to launch the database"
+        },
+        "ProdELBId": {
+            "Type": "String",
+            "Description": "DBSubnetGroupName to launch the database"
+        }
+    },
+
+    "Resources": {
+
+        "DNS" : {
+            "Type" : "AWS::Route53::RecordSetGroup",
+            "Properties" : {
+                "HostedZoneName" : { "Ref" : "HostedZoneName" },
+                "Comment" : "Zone apex alias targeted to beta and prod fleet.",
+                "RecordSets" : [ 
+                    {
+                        "Name" : { "Ref" : "HostedZoneName" },
+                        "Type" : "A",
+                        "Weight" : "0",
+                        "AliasTarget" : {
+                            "HostedZoneId" : { "Fn::GetAtt" : ["BetaELBId", "CanonicalHostedZoneNameID"] },
+                            "DNSName" : { "Fn::GetAtt" : ["BetaELBId","CanonicalHostedZoneName"] } }
+                    },
+                    {
+                        "Name" : { "Ref" : "HostedZoneName" },
+                        "Type" : "A",
+                        "Weight" : "4",
+                        "AliasTarget" : {
+                            "HostedZoneId" : { "Fn::GetAtt" : ["ProdELBId", "CanonicalHostedZoneNameID"] },
+                            "DNSName" : { "Fn::GetAtt" : ["ProdELBId","CanonicalHostedZoneName"] } }
+                    } 
+                ]
+            }
+        }
+    },
+
+    "Outputs": {
+    }
+}

@@ -34,6 +34,12 @@ if [ -n "$keyname" ]; then
     fi
 fi
 
+# if it is specified just set it on current_environment.sh, but do not set it on route53 automatically
+hostedzonename="$3"
+if [ -n "$hostedzonename" ]; then
+    hostedzonename=""
+fi
+
 # ensure S3 bucket exists
 if [ -z "$AWS_ACCOUNT_ID" ]; then
     aws_account_id="$(curl --connect-timeout 1 --retry 0 -s http://169.254.169.254/latest/meta-data/iam/info | grep -o 'arn:aws:iam::[0-9]\+:' | cut -f 5 -d :)"
@@ -68,6 +74,7 @@ echo "export codestardemo_codedeploy_application=$envname" >> "$ENVIRONMENT_FILE
 echo "export codestardemo_codedeploy_deploymentgroup_beta=beta" >> "$ENVIRONMENT_FILE"
 echo "export codestardemo_codedeploy_deploymentgroup_prod=prod" >> "$ENVIRONMENT_FILE"
 echo "export codestardemo_codepipeline=$envname" >> "$ENVIRONMENT_FILE"
+echo "export codestardemo_route53_hostedzonename=$hostedzonename" >> "$ENVIRONMENT_FILE"
 
 "$script_dir/create-cfn-vpc.sh"
 "$script_dir/create-cfn-iam.sh"
