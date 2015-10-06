@@ -18,9 +18,9 @@ aws s3api put-bucket-versioning \
 
 aws s3 cp appdemo/appfuse-v1.zip s3://$codestardemo_s3bucket/appdemo/appfuse-v1.zip
 #aws s3 cp appdemo/appfuse-v1.zip s3://$codestardemo_s3bucket/appdemo/appfuse-v1-src.zip
-aws s3 cp appdemo/appfuse-v2.zip s3://$codestardemo_s3bucket/appdemo/appfuse-v2.zip
+#aws s3 cp appdemo/appfuse-v2.zip s3://$codestardemo_s3bucket/appdemo/appfuse-v2.zip
 #aws s3 cp appdemo/appfuse-v2.zip s3://$codestardemo_s3bucket/appdemo/appfuse-v2-src.zip
-aws s3 cp appdemo/appfuse-v3.zip s3://$codestardemo_s3bucket/appdemo/appfuse-v3.zip
+#aws s3 cp appdemo/appfuse-v3.zip s3://$codestardemo_s3bucket/appdemo/appfuse-v3.zip
 #aws s3 cp appdemo/appfuse-v3.zip s3://$codestardemo_s3bucket/appdemo/appfuse-v3-src.zip
 
 echo "Creating $codestardemo_s3bucket_codepipeline_artifactstore."
