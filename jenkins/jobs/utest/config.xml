@@ -1,0 +1,52 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<project>
+
+  <actions/>
+  <description>aws-devops-demo unit test</description>
+
+  <keepDependencies>false</keepDependencies>
+  <canRoam>true</canRoam>
+  <blockBuildWhenDownstreamBuilding>false</blockBuildWhenDownstreamBuilding>
+  <blockBuildWhenUpstreamBuilding>false</blockBuildWhenUpstreamBuilding>
+  <disabled>false</disabled>
+  <concurrentBuild>true</concurrentBuild>
+
+  <scm class="com.amazonaws.codepipeline.jenkinsplugin.AWSCodePipelineSCM" plugin="codepipeline@0.7">
+    <projectName>build</projectName>
+    <region>us-east-1</region>
+    <proxyHost></proxyHost>
+    <proxyPort>0</proxyPort>
+    <awsAccessKey></awsAccessKey>
+    <awsSecretKey></awsSecretKey>
+    <clearWorkspace>true</clearWorkspace>
+    <actionTypeCategory>Build</actionTypeCategory>
+    <actionTypeProvider>JENKINSPROVIDER_PLACEHOLDER</actionTypeProvider>
+    <actionTypeVersion>1</actionTypeVersion>
+    <awsClientFactory/>
+  </scm>
+
+  <triggers>
+    <hudson.triggers.SCMTrigger>
+      <spec>* * * * *</spec>
+      <ignorePostCommitHooks>false</ignorePostCommitHooks>
+    </hudson.triggers.SCMTrigger>
+  </triggers>
+
+  <builders>
+    <hudson.tasks.Shell>
+      <command>/opt/apache-maven-3.3.3/bin/mvn clean test -Ddb.name=RDSTEST_DBNAME_PLACEHOLDER -Ddb.host=RDSTEST_DBHOST_PLACEHOLDER -Djdbc.password=RDSTEST_DBPASSWD_PLACEHOLDER</command>
+    </hudson.tasks.Shell>
+  </builders>
+
+  <publishers>
+    <com.amazonaws.codepipeline.jenkinsplugin.AWSCodePipelinePublisher plugin="codepipeline@0.7">
+      <buildOutputs>
+        <com.amazonaws.codepipeline.jenkinsplugin.AWSCodePipelinePublisher_-OutputTuple>
+          <outputString>target/surefire-reports</outputString>
+        </com.amazonaws.codepipeline.jenkinsplugin.AWSCodePipelinePublisher_-OutputTuple>
+      </buildOutputs>
+      <awsClientFactory/>
+    </com.amazonaws.codepipeline.jenkinsplugin.AWSCodePipelinePublisher>
+  </publishers>
+
+</project>
