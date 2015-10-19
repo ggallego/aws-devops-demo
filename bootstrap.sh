@@ -80,7 +80,7 @@ fi
 jenkinsprovider_name="JP$(echo $envname | tr '[[:lower:]]' '[[:upper:]]')$(printf "%x" $(date +%s))"
 
 # generate jenkinsmasterpasswdhash_entry
-jenkinsmasterpasswdhash_entry="$(echo -n '$awsdevopsdemo_passwd{awsdevopsdemo}' | shasum -a 256 | cut -d' ' -f1)"
+jenkinsmasterpasswdhash_entry="$(echo -n '$passwd{awsdevopsdemo}' | shasum -a 256 | cut -d' ' -f1)"
 
 
 touch "$ENVIRONMENT_FILE"
