@@ -1,117 +1,76 @@
 {
     "AWSTemplateFormatVersion": "2010-09-09",
-    "Description": "codestardemo - security groups",
+    "Description": "awsdevopsdemo - security groups",
 
     "Parameters" : {
-        "VPC": {
+        "VpcId": {
             "Type": "String",
-            "Description": "VPC ID in which to place Jenkins"
+            "Description": "VpcId to create the security groups for ELB, Jenkins, AppSrv instances and RDS"
         }
     },
 
     "Resources": {
 
-        "InstanceSecurityGroup": {
-            "Type": "AWS::EC2::SecurityGroup",
-            "Properties": {
-                "GroupDescription": "Open port 8080",
-                "VpcId": { "Ref": "VPC" },
-                "Tags": [{ "Key": "Application", "Value": { "Ref": "AWS::StackId" } },
-                         { "Key": "Name", "Value": { "Ref": "AWS::StackName" } }]
-            }
-        },
-    
-        "Instance8080SecurityGroupIngress": {
-            "Type": "AWS::EC2::SecurityGroupIngress",
-            "Properties": {
-                "GroupId": { "Ref": "InstanceSecurityGroup"},
-                "IpProtocol": "tcp",
-                "FromPort": "8080",
-                "ToPort": "8080",
-                "CidrIp": "0.0.0.0/0"
-            }
-        },
-
-        "InstanceSSHSecurityGroupIngress": {
-            "Type": "AWS::EC2::SecurityGroupIngress",
-            "Properties": {
-                "GroupId": { "Ref": "InstanceSecurityGroup"},
-                "IpProtocol": "tcp",
-                "FromPort": "22",
-                "ToPort": "22",
-                "CidrIp": "0.0.0.0/0"
-            }
-        },
-
-        "InstanceSecurityGroupEgress": {
-            "Type": "AWS::EC2::SecurityGroupEgress",
-            "Properties": {
-                "GroupId": { "Ref": "InstanceSecurityGroup" },
-                "IpProtocol": "-1",
-                "CidrIp": "0.0.0.0/0"
-            }
-        },
-
         "ELBSecurityGroup": {
             "Type": "AWS::EC2::SecurityGroup",
             "Properties": {
-                "GroupDescription": "Open port 80",
-                "VpcId": { "Ref": "VPC" },
+                "GroupDescription": "Open port 80 (for ELB)",
+                "VpcId": { "Ref": "VpcId" },
                 "Tags": [{ "Key": "Application", "Value": { "Ref": "AWS::StackId" } },
-                         { "Key": "Name", "Value": { "Ref": "AWS::StackName" } }]
+                         { "Key": "Name", "Value": { "Ref": "AWS::StackName" } }],
+             	"SecurityGroupIngress" : [ {
+	                "IpProtocol": "tcp",
+	                "FromPort": "80",
+	                "ToPort": "80",
+	                "CidrIp": "0.0.0.0/0"             		
+             	} ],
+             	"SecurityGroupEgress" : [ {
+	                "IpProtocol": "-1",
+	                "CidrIp": "0.0.0.0/0"
+             	} ]
             }
         },
     
-        "ELBHTTPSecurityGroupIngress": {
-            "Type": "AWS::EC2::SecurityGroupIngress",
+        "InstanceSecurityGroup": {
+            "Type": "AWS::EC2::SecurityGroup",
             "Properties": {
-                "GroupId": { "Ref": "ELBSecurityGroup"},
-                "IpProtocol": "tcp",
-                "FromPort": "80",
-                "ToPort": "80",
-                "CidrIp": "0.0.0.0/0"
+                "GroupDescription": "Open port 8080 (for jenkins and appsrv instances)",
+                "VpcId": { "Ref": "VpcId" },
+                "Tags": [{ "Key": "Application", "Value": { "Ref": "AWS::StackId" } },
+                         { "Key": "Name", "Value": { "Ref": "AWS::StackName" } }],
+             	"SecurityGroupIngress" : [ {
+	                "IpProtocol": "tcp",
+	                "FromPort": "8080",
+	                "ToPort": "8080",
+	                "CidrIp": "0.0.0.0/0"             		
+             	} ],
+             	"SecurityGroupEgress" : [ {
+	                "IpProtocol": "-1",
+	                "CidrIp": "0.0.0.0/0"
+             	} ]
             }
         },
-
-        "ELBSecurityGroupEgress": {
-            "Type": "AWS::EC2::SecurityGroupEgress",
-            "Properties": {
-                "GroupId": { "Ref": "ELBSecurityGroup" },
-                "IpProtocol": "-1",
-                "CidrIp": "0.0.0.0/0"
-            }
-        },
-
+    
         "RDSSecurityGroup": {
             "Type": "AWS::EC2::SecurityGroup",
             "Properties": {
-                "GroupDescription": "Open port 3306",
-                "VpcId": { "Ref": "VPC" },
+                "GroupDescription": "Open port 3306 (for RDS)",
+                "VpcId": { "Ref": "VpcId" },
                 "Tags": [{ "Key": "Application", "Value": { "Ref": "AWS::StackId" } },
-                         { "Key": "Name", "Value": { "Ref": "AWS::StackName" } }]
-            }
-        },
-    
-        "RDS3306SecurityGroupIngress": {
-            "Type": "AWS::EC2::SecurityGroupIngress",
-            "Properties": {
-                "GroupId": { "Ref": "RDSSecurityGroup"},
-                "IpProtocol": "tcp",
-                "FromPort": "3306",
-                "ToPort": "3306",
-                "CidrIp": "0.0.0.0/0"
-            }
-        },
-
-        "RDSSecurityGroupEgress": {
-            "Type": "AWS::EC2::SecurityGroupEgress",
-            "Properties": {
-                "GroupId": { "Ref": "RDSSecurityGroup" },
-                "IpProtocol": "-1",
-                "CidrIp": "0.0.0.0/0"
+                         { "Key": "Name", "Value": { "Ref": "AWS::StackName" } }],
+             	"SecurityGroupIngress" : [ {
+	                "IpProtocol": "tcp",
+	                "FromPort": "3306",
+	                "ToPort": "3306",
+	                "SourceSecurityGroupId": { "Ref": "InstanceSecurityGroup"}             		
+             	} ],
+             	"SecurityGroupEgress" : [ {
+	                "IpProtocol": "-1",
+	                "CidrIp": "0.0.0.0/0"
+             	} ]
             }
         }
-
+    
     },
 
     "Outputs": {
@@ -120,7 +79,7 @@
             "Value": { "Fn::GetAtt": [ "ELBSecurityGroup", "GroupId" ]}
         },
         "InstanceSecurityGroup": {
-            "Description": "Instance SecurityGroup",
+            "Description": "Instance (jenkins and appsrv) SecurityGroup",
             "Value": { "Fn::GetAtt": [ "InstanceSecurityGroup", "GroupId" ]}
         },
         "RDSSecurityGroup": {

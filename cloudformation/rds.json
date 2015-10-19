@@ -1,11 +1,15 @@
 {
     "AWSTemplateFormatVersion": "2010-09-09",
-    "Description": "codestardemo - rds",
+    "Description": "awsdevopsdemo - rds",
 
     "Parameters" : {
         "DBName": {
             "Type": "String",
             "Description": "database name"
+        },
+        "DBPasswd": {
+            "Type": "String",
+            "Description": "DBPasswd"
         },
         "RDSSecurityGroup": {
             "Type": "String",
@@ -30,7 +34,7 @@
                 "StorageType": "gp2",
                 "BackupRetentionPeriod": "1",
                 "MasterUsername": "master",
-                "MasterUserPassword": "mymasterpasswd",
+                "MasterUserPassword": { "Ref": "DBPasswd" },
                 "Engine": "mysql",
                 "DBSubnetGroupName": { "Ref": "DBSubnetGroupName" },
                 "VPCSecurityGroups": [ { "Ref": "RDSSecurityGroup" } ],
@@ -50,7 +54,7 @@
                 "StorageType": "gp2",
                 "BackupRetentionPeriod": "1",
                 "MasterUsername": "master",
-                "MasterUserPassword": "mymasterpasswd",
+                "MasterUserPassword": { "Ref": "DBPasswd" },
                 "Engine": "mysql",
                 "DBSubnetGroupName": { "Ref": "DBSubnetGroupName" },
                 "VPCSecurityGroups": [ { "Ref": "RDSSecurityGroup" } ],
@@ -69,22 +73,21 @@
             "Description": "Public DNS of the RDS - Address",
             "Value": { "Fn::GetAtt": [ "RDS", "Endpoint.Address" ]}
         },
-        "RDSDBPort": {
-            "Description": "Public DNS of the RDS - Port",
-            "Value": { "Fn::GetAtt": [ "RDS", "Endpoint.Port" ]}
+        "RDSDBPasswd": {
+            "Description": "Beta/Prod RDS DBPasswd",
+            "Value": { "Ref": "DBPasswd" }
         },
         "RDSTestDBName": {
-            "Description": "Beta/Prod RDS DBName",
+            "Description": "RDSTest DBName",
             "Value": { "Fn::Join" : [ "", [ { "Ref" : "DBName" }, "test" ]]}
         },
         "RDSTestDBHost": {
             "Description": "Public DNS of the RDSTest - Address",
             "Value": { "Fn::GetAtt": [ "RDSTest", "Endpoint.Address" ]}
         },
-        "RDSTestDBPort": {
-            "Description": "Public DNS of the RDSTest - Port",
-            "Value": { "Fn::GetAtt": [ "RDSTest", "Endpoint.Port" ]}
+        "RDSTestDBPasswd": {
+            "Description": "RDSTest DBPasswd",
+            "Value": { "Ref": "DBPasswd" }
         }
-
     }
 }

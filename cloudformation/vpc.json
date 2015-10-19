@@ -1,6 +1,6 @@
 {
     "AWSTemplateFormatVersion": "2010-09-09",
-    "Description": "codestardemo - network infrastructure",
+    "Description": "awsdevopsdemo - network infrastructure",
 
     "Resources": {
 
@@ -149,6 +149,10 @@
     },
 
     "Outputs": {
+        "VpcId" : {
+            "Description": "VPC ID",
+            "Value": { "Ref": "VPC" }
+        },
         "SubnetId" : {
             "Description": "VPC SubnetId (principal subnet for demo purposes)",
             "Value": { "Ref": "Subnet1" }
@@ -156,10 +160,6 @@
         "DBSubnetGroup" : {
             "Description": "VPC DBSubnetGroup",
             "Value": { "Ref": "DBSubnetGroup" }
-        },
-        "VPC" : {
-            "Description": "VPC ID",
-            "Value": { "Ref": "VPC" }
         }
     }
 }

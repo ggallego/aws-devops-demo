@@ -1,6 +1,6 @@
 {
     "AWSTemplateFormatVersion": "2010-09-09",
-    "Description": "codestardemo - jenkins",
+    "Description": "awsdevopsdemo - jenkins",
 
     "Parameters" : {
         "InstanceRole": {
@@ -11,7 +11,7 @@
             "Type": "String",
             "Description": "Artifact Bucket"
         },
-        "JobConfigsTarball": {
+        "JenkinsConfigsTarball": {
             "Type": "String",
             "Description": "Path to config tarball in S3Bucket"
         },
@@ -29,7 +29,7 @@
         },
         "SubnetId": {
             "Type": "String",
-            "Description": "VPC subnet id in which to place jenkins"
+            "Description": "subnet id in which to place jenkins"
         }
     },
 
@@ -48,8 +48,8 @@
                 "AWS::CloudFormation::Init": {
                     "config": {
                         "files": {
-                            "/tmp/jobconfigs.tgz": {
-                                "source": { "Fn::Join": [ "", [ "https://s3.amazonaws.com/", { "Ref" : "S3Bucket" }, "/", { "Ref" : "JobConfigsTarball" } ]]},
+                            "/tmp/jenkins_configs.tgz": {
+                                "source": { "Fn::Join": [ "", [ "https://s3.amazonaws.com/", { "Ref" : "S3Bucket" }, "/", { "Ref" : "JenkinsConfigsTarball" } ]]},
                                 "authentication": "S3AccessCreds",
                                 "mode": "000644",
                                 "owner": "root",
@@ -65,8 +65,8 @@
                         "commands": {
                             "00-extract-configs": {
                                 "command": { "Fn::Join" : [ "", [
-                                    "cd /var/lib/jenkins/jobs/\n",
-                                    "tar xzf /tmp/jobconfigs.tgz\n",
+                                    "cd /var/lib/jenkins/\n",
+                                    "tar xzf /tmp/jenkins_configs.tgz\n",
                                     "chown -R jenkins:jenkins .\n"
                                 ]]}
                             },
@@ -123,13 +123,13 @@
     },
 
     "Outputs": {
-        "PublicIp": {
-            "Description": "Public IP of Jenkins instance",
-            "Value": { "Fn::GetAtt": [ "JenkinsInstance", "PublicIp" ]}
-        },
-        "PublicDnsName": {
+        "JenkinsPublicDns": {
             "Description": "Public DNS of Jenkins instance",
             "Value": { "Fn::GetAtt": [ "JenkinsInstance", "PublicDnsName" ]}
+        },
+        "JenkinsPublicIp": {
+            "Description": "Public IP of Jenkins instance",
+            "Value": { "Fn::GetAtt": [ "JenkinsInstance", "PublicIp" ]}
         }
     }
 }

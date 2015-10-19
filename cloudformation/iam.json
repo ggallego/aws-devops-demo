@@ -1,6 +1,6 @@
 {
     "AWSTemplateFormatVersion": "2010-09-09",
-    "Description": "codestardemo - iam roles & policies and instance-profiles",
+    "Description": "awsdevopsdemo - iam roles & policies and instance-profiles",
 
     "Resources": {
 
