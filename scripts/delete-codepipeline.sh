@@ -17,10 +17,4 @@ echo "Deleting codepipeline $awsdevopsdemo_codepipeline."
 
 aws codepipeline delete-pipeline --name $awsdevopsdemo_codepipeline
 
-aws codepipeline delete-custom-action-type \
-    --action-version 1 --category Build --provider $awsdevopsdemo_jenkinsprovider_name
-
-#aws codepipeline delete-custom-action-type \
-#    --action-version 1 --category Test --provider $awsdevopsdemo_jenkinsprovider_name
-
 echo "Deleted codepipeline $awsdevopsdemo_codepipeline."

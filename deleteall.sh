@@ -20,6 +20,7 @@ read -p 'Press <ENTER> to continue ...'
 
 "$script_dir/delete-codedeploy.sh"
 "$script_dir/delete-codepipeline.sh"
+"$script_dir/delete-codepipeline-customaction.sh"
 "$script_dir/delete-cfn-jenkins.sh"
 "$script_dir/delete-s3bucket.sh"
 "$script_dir/delete-cfn-rds.sh"

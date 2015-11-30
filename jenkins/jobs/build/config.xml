@@ -2,16 +2,16 @@
 <project>
 
   <actions/>
-  <description>aws-devops-demo project builder</description>
+  <description>aws-devops-demo build</description>
 
   <keepDependencies>false</keepDependencies>
   <canRoam>true</canRoam>
   <blockBuildWhenDownstreamBuilding>false</blockBuildWhenDownstreamBuilding>
   <blockBuildWhenUpstreamBuilding>false</blockBuildWhenUpstreamBuilding>
-  <disabled>false</disabled>
+  <disabled>true</disabled>
   <concurrentBuild>true</concurrentBuild>
 
-  <scm class="com.amazonaws.codepipeline.jenkinsplugin.AWSCodePipelineSCM" plugin="codepipeline@0.7">
+  <scm class="com.amazonaws.codepipeline.jenkinsplugin.AWSCodePipelineSCM" plugin="aws-codepipeline@0.11">
     <projectName>build</projectName>
     <region>us-east-1</region>
     <proxyHost></proxyHost>
@@ -44,7 +44,7 @@ cp target/*.war deploy/content/ROOT.war</command>
   </builders>
 
   <publishers>
-    <com.amazonaws.codepipeline.jenkinsplugin.AWSCodePipelinePublisher plugin="codepipeline@0.7">
+    <com.amazonaws.codepipeline.jenkinsplugin.AWSCodePipelinePublisher plugin="aws-codepipeline@0.11">
       <buildOutputs>
         <com.amazonaws.codepipeline.jenkinsplugin.AWSCodePipelinePublisher_-OutputTuple>
           <outputString>deploy</outputString>

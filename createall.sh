@@ -62,6 +62,12 @@ if [ -n "$hostedzonename" ]; then
     hostedzonename=""
 fi
 
+# github oauthtoken, useful to create github pipeline integration
+github_oauthtoken="$5"
+if [ -n "$github_oauthtoken" ]; then
+    github_oauthtoken="undefined"
+fi
+
 # determine account ID (on ec2, then on your home computer)
 if [ -z "$AWS_ACCOUNT_ID" ]; then
     aws_account_id="$(curl --connect-timeout 1 --retry 0 -s http://169.254.169.254/latest/meta-data/iam/info | grep -o 'arn:aws:iam::[0-9]\+:' | cut -f 5 -d :)"
@@ -88,6 +94,7 @@ echo "export awsdevopsdemo_envname=$envname" >> "$ENVIRONMENT_FILE"
 echo "export awsdevopsdemo_keyname=$keyname" >> "$ENVIRONMENT_FILE"
 echo "export awsdevopsdemo_passwd=$passwd" >> "$ENVIRONMENT_FILE"
 echo "export awsdevopsdemo_route53_hostedzonename=$hostedzonename" >> "$ENVIRONMENT_FILE"
+echo "export awsdevopsdemo_github_oauthtoken=$github_oauthtoken" >> "$ENVIRONMENT_FILE"
 
 echo "export awsdevopsdemo_vpc_stackname=$envname-vpc" >> "$ENVIRONMENT_FILE"
 echo "export awsdevopsdemo_iam_stackname=$envname-iam" >> "$ENVIRONMENT_FILE"
@@ -112,4 +119,5 @@ echo "export awsdevopsdemo_codepipeline=$envname" >> "$ENVIRONMENT_FILE"
 "$script_dir/create-s3bucket.sh"
 "$script_dir/create-cfn-jenkins.sh"
 "$script_dir/create-codedeploy.sh"
+"$script_dir/create-codepipeline-customaction.sh"
 "$script_dir/create-codepipeline.sh"

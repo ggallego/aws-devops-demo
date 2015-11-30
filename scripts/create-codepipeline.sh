@@ -13,48 +13,18 @@ fi
 
 echo "Creating codepipeline $awsdevopsdemo_codepipeline."
 
-jenkins_ip="$(aws cloudformation describe-stacks --stack-name $awsdevopsdemo_jenkins_stackname --output text --query 'Stacks[0].Outputs[?OutputKey==`JenkinsPublicIp`].OutputValue')"
 codepipeline_rolearn="$(aws cloudformation describe-stacks --stack-name $awsdevopsdemo_iam_stackname --output text --query 'Stacks[0].Outputs[?OutputKey==`CodePipelineTrustRoleARN`].OutputValue')"
-jenkins_url="http://$jenkins_ip:8080"
-
-generate_cli_json() {
-    cat << _END_
-{
-    "category": "$1",
-    "provider": "$awsdevopsdemo_jenkinsprovider_name",
-    "version": "1",
-    "settings": {
-        "entityUrlTemplate": "$jenkins_url/job/{Config:ProjectName}",
-        "executionUrlTemplate": "$jenkins_url/job/{Config:ProjectName}/{ExternalExecutionId}"
-    },
-    "configurationProperties": [
-        {
-            "name": "ProjectName",
-            "required": true,
-            "key": true,
-            "secret": false,
-            "queryable": true
-        }
-    ],
-    "inputArtifactDetails": {
-        "minimumCount": 0,
-        "maximumCount": 5
-    },
-    "outputArtifactDetails": {
-        "minimumCount": 0,
-        "maximumCount": 5
-    }
-}
-_END_
-}
-
-aws codepipeline create-custom-action-type --cli-input-json "$(generate_cli_json Build)"
-#aws codepipeline create-custom-action-type --cli-input-json "$(generate_cli_json Test)"
 
 pipeline_json=$(mktemp /tmp/$awsdevopsdemo_envname-pipeline.json.XXXXX)
-#cp "$script_dir/../codepipeline/pipeline-s3-codedeploy.json" $pipeline_json
-cp "$script_dir/../codepipeline/pipeline-s3-build-utest-itest-codedeploy.json" $pipeline_json
-#cp "$script_dir/../codepipeline/pipeline-github-buildutestitest-codedeploy.json" $pipeline_json
+
+pipeline_file="$1"
+if [ -z "$pipeline_file" ]; then
+  pipeline_file="$script_dir/../codepipeline/pipeline-ghsource-buildandtest-beta-ghostinspector-prod.json"
+  #pipeline_file="$script_dir/../codepipeline/pipeline-ghsource-buildandtest-beta-prod.json"
+  #pipeline_file="$script_dir/../codepipeline/pipeline-s3binary-beta-prod.json"
+  #pipeline_file="$script_dir/../codepipeline/pipeline-s3source-buildandtest-beta-prod.json"
+fi
+cp "$pipeline_file" $pipeline_json
 
 sed s/CODEPIPELINE_NAME_PLACEHOLDER/$awsdevopsdemo_codepipeline/g $pipeline_json > $pipeline_json.new && mv $pipeline_json.new $pipeline_json
 sed s/CODEPIPELINE_JENKINSPROVIDER_PLACEHOLDER/$awsdevopsdemo_jenkinsprovider_name/g $pipeline_json > $pipeline_json.new && mv $pipeline_json.new $pipeline_json
@@ -64,6 +34,10 @@ sed s/CODEPIPELINE_S3BUCKET_PLACEHOLDER/$awsdevopsdemo_s3bucket/g $pipeline_json
 sed s/CODEPIPELINE_S3BUCKET_CODEPIPELINE_ARTIFACTSTORE_PLACEHOLDER/$awsdevopsdemo_s3bucket_codepipeline_artifactstore/g $pipeline_json > $pipeline_json.new && mv $pipeline_json.new $pipeline_json
 
 aws codepipeline create-pipeline --pipeline file://$pipeline_json || exit $?
+
+if [ $pipeline_file -eq "$script_dir/../codepipeline/pipeline-ghsource-buildandtest-beta-ghostinspector-prod.json" ]
+    aws codepipeline disable-stage-transition --pipeline-name $awsdevopsdemo_codepipeline --stage-name Acceptance --transition-type Inbound --reason "Need configure ghostinspector first"
+fi
 
 rm -f $pipeline_json
 
