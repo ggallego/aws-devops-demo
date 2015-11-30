@@ -1,0 +1,160 @@
+{
+        "roleArn": "CODEPIPELINE_ROLEARN_PLACEHOLDER", 
+        "stages": [
+            {
+                "name": "Source", 
+                "actions": [
+                    {
+                        "inputArtifacts": [], 
+                        "name": "Source", 
+                        "actionTypeId": {
+                            "category": "Source", 
+                            "owner": "AWS", 
+                            "version": "1", 
+                            "provider": "S3"
+                        }, 
+                        "outputArtifacts": [
+                            {
+                                "name": "app-source"
+                            }
+                        ], 
+                        "configuration": {
+                            "S3Bucket": "CODEPIPELINE_S3BUCKET_PLACEHOLDER", 
+                            "S3ObjectKey": "appdemo/appfuse-v2-src.zip"
+                        }, 
+                        "runOrder": 1
+                    }
+                ]
+            }, 
+            {
+                "name": "Build", 
+                "actions": [
+                    {
+                        "inputArtifacts": [
+                            {
+                                "name": "app-source"
+                            }
+                        ], 
+                        "name": "Build", 
+                        "actionTypeId": {
+                            "category": "Build", 
+                            "owner": "Custom", 
+                            "version": "1", 
+                            "provider": "CODEPIPELINE_JENKINSPROVIDER_PLACEHOLDER"
+                        }, 
+                        "outputArtifacts": [
+                            {
+                                "name": "app-build"
+                            }
+                        ], 
+                        "configuration": {
+                            "ProjectName": "build"
+                        }, 
+                        "runOrder": 1
+                    },
+                    {
+                        "inputArtifacts": [
+                            {
+                                "name": "app-source"
+                            }
+                        ], 
+                        "name": "UnitTest", 
+                        "actionTypeId": {
+                            "category": "Build", 
+                            "owner": "Custom", 
+                            "version": "1", 
+                            "provider": "CODEPIPELINE_JENKINSPROVIDER_PLACEHOLDER"
+                        }, 
+                        "outputArtifacts": [
+                            {
+                                "name": "app-utest"
+                            }
+                        ], 
+                        "configuration": {
+                            "ProjectName": "utest"
+                        }, 
+                        "runOrder": 2
+                    },
+                    {
+                        "inputArtifacts": [
+                            {
+                                "name": "app-source"
+                            }
+                        ], 
+                        "name": "IntegrationTest", 
+                        "actionTypeId": {
+                            "category": "Build", 
+                            "owner": "Custom", 
+                            "version": "1", 
+                            "provider": "CODEPIPELINE_JENKINSPROVIDER_PLACEHOLDER"
+                        }, 
+                        "outputArtifacts": [
+                            {
+                                "name": "app-itest"
+                            }
+                        ], 
+                        "configuration": {
+                            "ProjectName": "itest"
+                        }, 
+                        "runOrder": 3
+                    }
+                ]
+            }, 
+            {
+                "name": "Beta", 
+                "actions": [
+                    {
+                        "inputArtifacts": [
+                            {
+                                "name": "app-build"
+                            }
+                        ], 
+                        "name": "beta", 
+                        "actionTypeId": {
+                            "category": "Deploy", 
+                            "owner": "AWS", 
+                            "version": "1", 
+                            "provider": "CodeDeploy"
+                        }, 
+                        "outputArtifacts": [], 
+                        "configuration": {
+                            "ApplicationName": "CODEPIPELINE_NAME_PLACEHOLDER", 
+                            "DeploymentGroupName": "beta"
+                        }, 
+                        "runOrder": 1
+                    }
+                ]
+            },
+            {
+                "name": "Prod",
+                "actions": [
+                    {
+                        "inputArtifacts": [
+                            {
+                                "name": "app-build"
+                            }
+                        ],
+                        "name": "prod",
+                        "actionTypeId": {
+                            "category": "Deploy",
+                            "owner": "AWS",
+                            "version": "1",
+                            "provider": "CodeDeploy"
+                        },
+                        "outputArtifacts": [],
+                        "configuration": {
+                            "ApplicationName": "CODEPIPELINE_NAME_PLACEHOLDER",
+                            "DeploymentGroupName": "prod"
+                        },
+                        "runOrder": 1
+                    }
+                ]
+            }
+        ], 
+        "artifactStore": {
+            "type": "S3", 
+            "location": "CODEPIPELINE_S3BUCKET_CODEPIPELINE_ARTIFACTSTORE_PLACEHOLDER"
+        }, 
+        "name": "CODEPIPELINE_NAME_PLACEHOLDER", 
+        "version": 1
+}

@@ -1,0 +1,86 @@
+{
+        "roleArn": "CODEPIPELINE_ROLEARN_PLACEHOLDER", 
+        "stages": [
+            {
+                "name": "Binary", 
+                "actions": [
+                    {
+                        "inputArtifacts": [], 
+                        "name": "Source", 
+                        "actionTypeId": {
+                            "category": "Source", 
+                            "owner": "AWS", 
+                            "version": "1", 
+                            "provider": "S3"
+                        }, 
+                        "outputArtifacts": [
+                            {
+                                "name": "app-binary"
+                            }
+                        ], 
+                        "configuration": {
+                            "S3Bucket": "CODEPIPELINE_S3BUCKET_PLACEHOLDER", 
+                            "S3ObjectKey": "appdemo/appfuse-v2.zip"
+                        }, 
+                        "runOrder": 1
+                    }
+                ]
+            }, 
+            {
+                "name": "Beta", 
+                "actions": [
+                    {
+                        "inputArtifacts": [
+                            {
+                                "name": "app-binary"
+                            }
+                        ], 
+                        "name": "beta", 
+                        "actionTypeId": {
+                            "category": "Deploy", 
+                            "owner": "AWS", 
+                            "version": "1", 
+                            "provider": "CodeDeploy"
+                        }, 
+                        "outputArtifacts": [], 
+                        "configuration": {
+                            "ApplicationName": "CODEPIPELINE_NAME_PLACEHOLDER", 
+                            "DeploymentGroupName": "beta"
+                        }, 
+                        "runOrder": 1
+                    }
+                ]
+            },
+            {
+                "name": "Prod",
+                "actions": [
+                    {
+                        "inputArtifacts": [
+                            {
+                                "name": "app-binary"
+                            }
+                        ],
+                        "name": "prod",
+                        "actionTypeId": {
+                            "category": "Deploy",
+                            "owner": "AWS",
+                            "version": "1",
+                            "provider": "CodeDeploy"
+                        },
+                        "outputArtifacts": [],
+                        "configuration": {
+                            "ApplicationName": "CODEPIPELINE_NAME_PLACEHOLDER",
+                            "DeploymentGroupName": "prod"
+                        },
+                        "runOrder": 1
+                    }
+                ]
+            }
+        ], 
+        "artifactStore": {
+            "type": "S3", 
+            "location": "CODEPIPELINE_S3BUCKET_CODEPIPELINE_ARTIFACTSTORE_PLACEHOLDER"
+        }, 
+        "name": "CODEPIPELINE_NAME_PLACEHOLDER", 
+        "version": 1
+}
