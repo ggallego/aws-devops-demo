@@ -10,7 +10,7 @@ if [ -f "$ENVIRONMENT_FILE" ]; then
 fi
 
 # ensure correct params was informed
-if [ "$#" -ne 3 ]; then
+if [ "$#" -lt 3 ]; then
     echo "Usage: $(basename $0) <envname> <keypairname> <passwd>" >&2
     echo "       - <envname: prefix to new aws resource names and tags created in your account>" >&2
     echo "       - <keypairname: name of your existing keypair on virginia region>" >&2
@@ -58,13 +58,13 @@ fi
 
 # if it is specified just set it on current_environment.sh, but do not set it on route53 automatically (yet)
 hostedzonename="$4"
-if [ -n "$hostedzonename" ]; then
+if [ -z "$hostedzonename" ]; then
     hostedzonename=""
 fi
 
 # github oauthtoken, useful to create github pipeline integration
 github_oauthtoken="$5"
-if [ -n "$github_oauthtoken" ]; then
+if [ -z "$github_oauthtoken" ]; then
     github_oauthtoken="undefined"
 fi
 

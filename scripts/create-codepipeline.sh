@@ -33,10 +33,15 @@ sed s/CODEPIPELINE_GITHUB_OAUTHTOKEN/$awsdevopsdemo_github_oauthtoken/g $pipelin
 sed s/CODEPIPELINE_S3BUCKET_PLACEHOLDER/$awsdevopsdemo_s3bucket/g $pipeline_json > $pipeline_json.new && mv $pipeline_json.new $pipeline_json
 sed s/CODEPIPELINE_S3BUCKET_CODEPIPELINE_ARTIFACTSTORE_PLACEHOLDER/$awsdevopsdemo_s3bucket_codepipeline_artifactstore/g $pipeline_json > $pipeline_json.new && mv $pipeline_json.new $pipeline_json
 
-aws codepipeline create-pipeline --pipeline file://$pipeline_json || exit $?
+aws codepipeline create-pipeline \
+    --pipeline file://$pipeline_json || exit $?
 
-if [ $pipeline_file -eq "$script_dir/../codepipeline/pipeline-ghsource-buildandtest-beta-ghostinspector-prod.json" ]
-    aws codepipeline disable-stage-transition --pipeline-name $awsdevopsdemo_codepipeline --stage-name Acceptance --transition-type Inbound --reason "Need configure ghostinspector first"
+if [ "$pipeline_file" == "$script_dir/../codepipeline/pipeline-ghsource-buildandtest-beta-ghostinspector-prod.json" ]; then
+    aws codepipeline disable-stage-transition \
+        --pipeline-name $awsdevopsdemo_codepipeline \
+        --stage-name Acceptance \
+        --transition-type Inbound \
+        --reason "Need configure ghostinspector first"
 fi
 
 rm -f $pipeline_json
