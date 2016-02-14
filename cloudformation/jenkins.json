@@ -82,7 +82,7 @@
             },
 
             "Properties": {
-                "ImageId": "ami-06ce8d6c",
+                "ImageId": "ami-80f5c1ea",
                 "InstanceType": "t2.large",
                 "KeyName": { "Ref": "KeyName" },
                 "IamInstanceProfile": { "Ref": "IamInstanceProfile" },
