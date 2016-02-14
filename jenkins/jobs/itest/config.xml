@@ -8,7 +8,7 @@
   <canRoam>true</canRoam>
   <blockBuildWhenDownstreamBuilding>false</blockBuildWhenDownstreamBuilding>
   <blockBuildWhenUpstreamBuilding>false</blockBuildWhenUpstreamBuilding>
-  <disabled>true</disabled>
+  <disabled>false</disabled>
   <concurrentBuild>true</concurrentBuild>
 
   <scm class="com.amazonaws.codepipeline.jenkinsplugin.AWSCodePipelineSCM" plugin="aws-codepipeline@0.11">

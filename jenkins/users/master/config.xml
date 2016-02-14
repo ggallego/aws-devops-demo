@@ -26,7 +26,8 @@
       <insensitiveSearch>false</insensitiveSearch>
     </hudson.search.UserSearchProperty>
     <hudson.security.HudsonPrivateSecurityRealm_-Details>
-      <passwordHash>awsdevopsdemo:JENKINSMASTERPASSWDHASH_PLACEHOLDER</passwordHash>
+      <!--passwordHash>awsdevopsdemo:JENKINSMASTERPASSWDHASH_PLACEHOLDER</passwordHash-->
+      <passwordHash>#jbcrypt:$2a$10$ByvBpE9x.6i1Hh1BgqygK.paZ3a3orrwN43xAfCNQ8JcJwtyQewiq</passwordHash>
     </hudson.security.HudsonPrivateSecurityRealm_-Details>
     <hudson.tasks.Mailer_-UserProperty plugin="mailer@1.11">
       <emailAddress>master@email.com</emailAddress>
