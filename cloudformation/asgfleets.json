@@ -163,7 +163,7 @@
         },
         "ProdPublicDns": {
             "Description": "Public DNS of the ELB",
-            "Value": { "Fn::GetAtt": [ "BetaFleetLoadBalancer", "DNSName" ]}
+            "Value": { "Fn::GetAtt": [ "ProdFleetLoadBalancer", "DNSName" ]}
         }
 
     }
