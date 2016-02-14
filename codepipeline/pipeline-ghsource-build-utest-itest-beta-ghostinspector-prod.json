@@ -9,9 +9,9 @@
                         "name": "Source", 
                         "actionTypeId": {
                             "category": "Source", 
-                            "owner": "AWS", 
+                            "owner": "ThirdParty", 
                             "version": "1", 
-                            "provider": "S3"
+                            "provider": "GitHub"
                         }, 
                         "outputArtifacts": [
                             {
@@ -19,15 +19,17 @@
                             }
                         ], 
                         "configuration": {
-                            "S3Bucket": "CODEPIPELINE_S3BUCKET_PLACEHOLDER", 
-                            "S3ObjectKey": "appdemo/appfuse-v2-src.zip"
+                            "Owner": "ggallego", 
+                            "Repo": "aws-devops-appfuse-demo", 
+                            "Branch": "aws-devops-appfuse-demo-v2", 
+                            "OAuthToken": "CODEPIPELINE_GITHUB_OAUTHTOKEN"
                         }, 
                         "runOrder": 1
                     }
                 ]
             }, 
             {
-                "name": "Build", 
+                "name": "BuildAndTest", 
                 "actions": [
                     {
                         "inputArtifacts": [
@@ -121,6 +123,32 @@
                             "ApplicationName": "CODEPIPELINE_NAME_PLACEHOLDER", 
                             "DeploymentGroupName": "beta"
                         }, 
+                        "runOrder": 1
+                    }
+                ]
+            },
+            {
+                "name": "Acceptance",
+                "actions": [
+                    {
+                        "inputArtifacts": [
+                            {
+                                "name": "app-build"
+                            }
+                        ],
+                        "name": "acceptance",
+                        "actionTypeId": {
+                            "category": "Test",
+                            "owner": "ThirdParty",
+                            "version": "1",
+                            "provider": "GhostInspector"
+                        },
+                        "outputArtifacts": [],
+                        "configuration": {
+                            "TestId": "CODEPIPELINE_GHOSTINSPECTOR_TESTID",
+                            "ClientId": "CODEPIPELINE_GHOSTINSPECTOR_CLIENTID",
+                            "ClientToken": "CODEPIPELINE_GHOSTINSPECTOR_CLIENTTOKEN"
+                        },
                         "runOrder": 1
                     }
                 ]

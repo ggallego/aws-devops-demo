@@ -19,7 +19,8 @@ pipeline_json=$(mktemp /tmp/$awsdevopsdemo_envname-pipeline.json.XXXXX)
 
 pipeline_file="$1"
 if [ -z "$pipeline_file" ]; then
-  pipeline_file="$script_dir/../codepipeline/pipeline-ghsource-buildandtest-beta-ghostinspector-prod.json"
+  pipeline_file="$script_dir/../codepipeline/pipeline-ghsource-build-utest-itest-beta-ghostinspector-prod.json"
+  #pipeline_file="$script_dir/../codepipeline/pipeline-ghsource-buildandtest-beta-ghostinspector-prod.json"
   #pipeline_file="$script_dir/../codepipeline/pipeline-ghsource-buildandtest-beta-prod.json"
   #pipeline_file="$script_dir/../codepipeline/pipeline-s3binary-beta-prod.json"
   #pipeline_file="$script_dir/../codepipeline/pipeline-s3source-buildandtest-beta-prod.json"
