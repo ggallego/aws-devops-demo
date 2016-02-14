@@ -110,6 +110,7 @@ echo "export awsdevopsdemo_codedeploy_application=$envname" >> "$ENVIRONMENT_FIL
 echo "export awsdevopsdemo_codedeploy_deploymentgroup_beta=beta" >> "$ENVIRONMENT_FILE"
 echo "export awsdevopsdemo_codedeploy_deploymentgroup_prod=prod" >> "$ENVIRONMENT_FILE"
 echo "export awsdevopsdemo_codepipeline=$envname" >> "$ENVIRONMENT_FILE"
+echo "export awsdevopsdemo_route53_stackname=$envname-route53" >> "$ENVIRONMENT_FILE"
 
 "$script_dir/create-cfn-vpc.sh"
 "$script_dir/create-cfn-iam.sh"
@@ -121,3 +122,5 @@ echo "export awsdevopsdemo_codepipeline=$envname" >> "$ENVIRONMENT_FILE"
 "$script_dir/create-codedeploy.sh"
 "$script_dir/create-codepipeline-customaction.sh"
 "$script_dir/create-codepipeline.sh"
+#"$script_dir/create-cfn-route53.sh"
+
