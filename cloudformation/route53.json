@@ -1,19 +1,19 @@
 {
     "AWSTemplateFormatVersion": "2010-09-09",
-    "Description": "awsdevopsdemo - autoscalinggroup betafleet",
+    "Description": "awsdevopsdemo - route53 setup",
 
     "Parameters" : {
         "HostedZoneName": {
             "Type": "String",
             "Description": "HostedZoneName"
         },
-        "BetaELBId": {
+        "BetaPublicDns": {
             "Type": "String",
-            "Description": "RDSSecurityGroup to launch the database"
+            "Description": "BetaPublicDns"
         },
-        "ProdELBId": {
+        "ProdPublicDns": {
             "Type": "String",
-            "Description": "DBSubnetGroupName to launch the database"
+            "Description": "ProdPublicDns"
         }
     },
 
@@ -28,18 +28,16 @@
                     {
                         "Name" : { "Ref" : "HostedZoneName" },
                         "Type" : "A",
+                        "SetIdentifier" : "Beta",
                         "Weight" : "0",
-                        "AliasTarget" : {
-                            "HostedZoneId" : { "Fn::GetAtt" : ["BetaELBId", "CanonicalHostedZoneNameID"] },
-                            "DNSName" : { "Fn::GetAtt" : ["BetaELBId","CanonicalHostedZoneName"] } }
+                        "ResourceRecords" : [ { "Ref": "BetaPublicDns"} ]
                     },
                     {
                         "Name" : { "Ref" : "HostedZoneName" },
                         "Type" : "A",
+                        "SetIdentifier" : "Prod",
                         "Weight" : "4",
-                        "AliasTarget" : {
-                            "HostedZoneId" : { "Fn::GetAtt" : ["ProdELBId", "CanonicalHostedZoneNameID"] },
-                            "DNSName" : { "Fn::GetAtt" : ["ProdELBId","CanonicalHostedZoneName"] } }
+                        "ResourceRecords" : [ { "Ref": "ProdPublicDns"} ]
                     } 
                 ]
             }
